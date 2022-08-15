@@ -31,7 +31,7 @@ Copypasta from my other language.
 </p>
 <p>Code:</p>
 <textarea id="code"></textarea>
-<p>Input:</p>
+<p>Input: <select id="input-select"><option value="">user input</option><option value="ukacd.gz">UKACD.gz (use read_compressed())</option><option value="yawl.gz">YAWL.gz (use read_compressed())</option></select></p>
 <textarea id="input"></textarea>
 <button id="run" type="button" role="button" disabled>Loading...</button>
 <div id="outer-output">
@@ -57,7 +57,15 @@ async function prepare(worker) {
 	const runner = document.getElementById('run');
 	function run() {
 		runner.disabled = true;
-		worker.postMessage([code.value, input.value]);
+		let sel = document.getElementById('input-select').value;
+		if (sel) {
+			fetch(sel).then(x => x.arrayBuffer().then(b => {
+				console.log(b);
+				worker.postMessage([code.value, new Uint8Array(b)]);
+			}));
+		} else {
+			worker.postMessage([code.value, new TextEncoder().encode(input.value)]);
+		}
 	}
 	runner.addEventListener('click', run);
 	code.addEventListener('keydown', function(event) {
@@ -108,7 +116,9 @@ document.addEventListener('DOMContentLoaded', function() {
 			runner.disabled = false;
 			outerOutput.style.display = 'block';
 			output.textContent = e.data[0];
+			output.display = e.data[0] ? "block" : "none";
 			error.textContent = e.data[1];
+			error.display = e.data[1] ? "block" : "none";
 		}
 	};
 });
