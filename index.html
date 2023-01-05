@@ -96,11 +96,20 @@ document.addEventListener('DOMContentLoaded', function() {
 	var base64 = location.hash.substr(1);
 	const code = document.getElementById('code');
 	const urlElem = document.getElementById('url');
+	const inputSelect = document.getElementById('input-select');
+	let h = base64.indexOf("#");
+	if (h >= 0) {
+		inputSelect.value = base64.slice(h + 1);
+		base64 = base64.slice(0, h);
+	}
 	if (base64.length) {
 		code.value = b64decode(base64);
 	}
 	document.getElementById('gen-url').addEventListener('click', function() {
 		urlElem.value = location.protocol + '//' + location.host + location.pathname + '#' + b64encode(code.value);
+		if (inputSelect.value) {
+			urlElem.value += "#" + inputSelect.value;
+		}
 		urlElem.style.display = 'block';
 	});
 
@@ -116,9 +125,9 @@ document.addEventListener('DOMContentLoaded', function() {
 			runner.disabled = false;
 			outerOutput.style.display = 'block';
 			output.textContent = e.data[0];
-			output.display = e.data[0] ? "block" : "none";
+			output.style.display = e.data[0] ? "block" : "none";
 			error.textContent = e.data[1];
-			error.display = e.data[1] ? "block" : "none";
+			error.style.display = e.data[1] ? "block" : "none";
 		}
 	};
 });
